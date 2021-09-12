@@ -1,4 +1,5 @@
 package com.wafflestudio.seminar.domain.user.exception
 
-class UserEmailConflictException {
-}
+import com.wafflestudio.seminar.common.exception.WaffleException
+
+class UserEmailConflictException : WaffleException("USER EMAIL ALREADY EXISTS")

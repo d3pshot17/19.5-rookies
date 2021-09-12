@@ -1,4 +1,5 @@
 package com.wafflestudio.seminar.domain.user.exception
 
-class UserNotFoundException {
-}
+import com.wafflestudio.seminar.common.exception.WaffleException
+
+class UserNotFoundException : WaffleException("USER NOT FOUND")

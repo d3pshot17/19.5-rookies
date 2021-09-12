@@ -1,6 +1,8 @@
 package com.wafflestudio.seminar.domain.survey.model
 
+import com.sun.istack.Nullable
 import com.wafflestudio.seminar.domain.os.model.OperatingSystem
+import com.wafflestudio.seminar.domain.user.model.User
 import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.Max
@@ -14,6 +16,11 @@ class SurveyResponse(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @Nullable
+    var user: User? = null,
 
     @ManyToOne
     @JoinColumn(name = "os_id", referencedColumnName = "id")

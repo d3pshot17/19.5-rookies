@@ -1,11 +1,19 @@
 package com.wafflestudio.seminar.domain.survey.api
 
+import com.wafflestudio.seminar.common.exception.WaffleException
 import com.wafflestudio.seminar.domain.survey.dto.SurveyResponseDto
 import com.wafflestudio.seminar.domain.os.exception.OsNotFoundException
+import com.wafflestudio.seminar.domain.os.repository.OperatingSystemRepository
+import com.wafflestudio.seminar.domain.os.service.OperatingSystemService
 import com.wafflestudio.seminar.domain.survey.exception.SurveyNotFoundException
 import com.wafflestudio.seminar.domain.survey.model.SurveyResponse
 import com.wafflestudio.seminar.domain.survey.service.SurveyResponseService
+import com.wafflestudio.seminar.domain.user.exception.UserNotFoundException
+import com.wafflestudio.seminar.domain.user.repository.UserRepository
+import com.wafflestudio.seminar.domain.user.service.UserService
 import org.modelmapper.ModelMapper
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -14,6 +22,8 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/results")
 class SurveyResponseController(
     private val surveyResponseService: SurveyResponseService,
+    private val operatingSystemService: OperatingSystemService,
+    private val userService: UserService,
     private val modelMapper: ModelMapper
 ) {
     @GetMapping("/")
@@ -43,12 +53,21 @@ class SurveyResponseController(
 
     @PostMapping("/")
     fun addSurveyResponse(
-        @ModelAttribute @Valid body: SurveyResponseDto.CreateRequest,
+        @RequestBody @Valid body: SurveyResponseDto.CreateRequest,
         @RequestHeader("User-Id") userId: Long
-    ): SurveyResponseDto.Response {
-        //TODO: API 생성
-//        val newSurveyResponse = modelMapper.map(body, SurveyResponse::class.java)
-        return SurveyResponseDto.Response()
+    ): ResponseEntity<SurveyResponseDto.Response> {
+        return try{
+            val newSurveyResponse = modelMapper.map(body, SurveyResponse::class.java)
+            newSurveyResponse.user = userService.getUserById(userId)
+            newSurveyResponse.os = operatingSystemService.getOperatingSystemByName(body.os)
+            val createdSurveyResponse = surveyResponseService.createSurveyResponse(newSurveyResponse)
+            val responseBody = modelMapper.map(createdSurveyResponse, SurveyResponseDto.Response::class.java)
+            ResponseEntity.status(201).body(responseBody)
+        } catch (e: UserNotFoundException ){
+            ResponseEntity.notFound().build()
+        } catch (e: OsNotFoundException){
+            ResponseEntity.notFound().build()
+        }
     }
 
     @PatchMapping("/{id}/")
