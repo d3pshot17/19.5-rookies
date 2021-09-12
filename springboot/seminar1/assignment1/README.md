@@ -1,4 +1,4 @@
-# 와플스튜디오 SpringBoot Seminar[1] 과제. Updated At 2021.9.5 02:04
+# 와플스튜디오 SpringBoot Seminar[1] 과제. Updated At 2021.9.8 22:10
 
 ### due: 2021.09.11.(토) 23:59
 
@@ -23,32 +23,30 @@ ddl이 잘 db에 적용됐는지, 데이터는 잘 들어갔는지 확인합니�
 유저는 이름, 이메일을 가지고 있고 해당 두 값은 비어있거나 null이면 안됩니다. 추가적으로 이메일의 경우 중복되는 데이터가 존재하면 안됩니다. (spring의 validation과 Entity )
 
 2. `survey_response` table에 `user_id` column을 추가하세요. 이미 `survey_response`에 `user_id`가 없는 데이터들이 들어가있으므로,
-`user_id`는 당연히 nullable해야 하며, 연결되어있는 user row가 삭제된다고 해도 `survey_response`의 해당 row까지 같이 삭제되면 안 됩니다.
-(hint: cascade type)
-절대 DB에 직접 query를 실행해 column을 추가 또는 수정하지 말고, Spring프로젝트의 해당 model을
-수정하세요.
+`user_id`는 당연히 nullable해야 합니다.
 현재 스프링 프로젝트가 시작될 때마다 `application.yml`에 설정한대로 테이블이 drop되고 `DataLoader.kt`에서 기존 데이터가 추가됩니다.
 
 4. 현재 이 서버는 유저 데이터가 없습니다. `POST /api/v1/user/`를 수정하여, 새로운 유저를 생성할 수 있는 api를 만들어주세요.
 hint: 
-    - `@ModelAttribute` 어노테이션과 UserDTO를 사용해 request body를 받아주세요. request body의 content-type은 `form-data` 여야 합니다.
+    - ~~`@ModelAttribute` 어노테이션과 UserDTO를 사용해 request body를 받아주세요. request body의 content-type은 `form-data` 여야 합니다.~~
+    - (2021/09/08 수정) json에서 snake_case의 객체 매핑을 쉽게 하기 위해 `@RequestBody` 사용하셔도 됩니다! (참고 이슈: [#328](https://github.com/wafflestudio/19.5-rookies/issues/328))
     - JpaRepository에서 기본 제공해주는 `save` 메소드를 이용해 db에 create가 가능합니다.
     - 실행 시마다 유저 데이터가 사라집니다. 원할한 테스트를 위해서 DataLoader에 기본 테스트용 유저 삽입 로직을 넣으면 디버깅이 편해집니다.
 
 7. 유저가 자신의 정보를 확인할 수 있도록 `GET /api/v1/user/me/` API를 개발하세요. 이는 로그인한 유저가 자신의 정보를 알기 위함입니다. 저희는 아직 로그인 로직을 구현 안했으므로 단순히 header에 `User-Id`라는 custom header를 추가해 로그인한 유저를 나타냅니다.
 
-8. 이제 드디어 서비스상 유의미한 기능을 추가할 수 있습니다. 유저가 `POST /api/v1/result/` API를 통해 설문조사에 참여할 수 있도록 하세요. 비교적 자유롭게
+8. 이제 드디어 서비스상 유의미한 기능을 추가할 수 있습니다. 유저가 `POST /api/v1/results/` API를 통해 설문조사에 참여할 수 있도록 하세요. 비교적 자유롭게
 구현하셔도 되는데, spring_exp, rdb_exp, programming_exp, os는 request의 body에 key 이름으로서 빈 str 등이 아닌 값을 가진 채 필수로 포함되어야 하고
 넷 중 하나라도 빠진 요청은 `400 BAD REQUEST`가 되어야 합니다. 또한 python, rdb, programming에 해당하는 값은 당연히 SurveyResult model 내부에도 포함되어있듯
-1 이상 5 이하의 int로 변환되어 저장될 수 있어야 하며, 그렇지 않으면 마찬가지로 `400`입니다. body의 os에 대해서는 해당 이름과 같은 os가 없다면 `403 NOT FOUND`입니다.
+1 이상 5 이하의 int로 변환되어 저장될 수 있어야 하며, 그렇지 않으면 마찬가지로 `400`입니다. body의 os에 대해서는 해당 이름과 같은 os가 없다면 `404 NOT FOUND`입니다.
 timestamp에는 해당 시점의 값이 자동으로 들어가야합니다. 또한 요청한 user의 id가 user_id로서 포함되어 저장되어야 합니다.
-설문 결과가 정상 생성되어 요청이 완료된 경우, `201 CREATED`와 함께, `GET /api/v1/result/{survey_response_id}/`에 해당하는 body와 동일하게 처리하면 됩니다.
+설문 결과가 정상 생성되어 요청이 완료된 경우, `201 CREATED`와 함께, `GET /api/v1/results/{survey_response_id}/`에 해당하는 body와 동일하게 처리하면 됩니다.
 한 유저가 여러 번 설문 결과를 제출할 수 있는 것은 정상적인 동작입니다. Postman 등으로 개발 과정에서 꾸준히 테스트하시되, 스크린샷을 포함시킬지는 자유이며 코드에 모든 내용을 반영하면 됩니다.
 
 9. `SurveyResponseDto.Response`가 자신의 내부에 `'os'`처럼 `'user'`에 대한 내용도 포함해 반환하도록 하세요. 해당 `survey_response`에 연결된 user가 없는 경우에는,
 `'user'`의 값이 null로 response body에 포함되어야 합니다.
 10. `waffle-rookies-19.5-springboot` `assignment1`브랜치의 `README.md`에 과제 관련 하고 싶은 말, 어려웠던 점 등을 남겨주세요. 물론 적극적으로 해결되어야 할 피드백이나
-질문 사항은 [Issues](https://github.com/wafflestudio/rookies/issues) 등을 이용해주세요!
+질문 사항은 [Issues](https://github.com/wafflestudio/19.5-rookies/issues) 등을 이용해주세요!
 
 ## 제출 방식
 1. 자신의 GitHub 개인 계정에 `waffle-rookies-19.5-springboot`라는 이름으로 private repository를 개설합니다.
@@ -78,6 +76,7 @@ timestamp에는 해당 시점의 값이 자동으로 들어가야합니다. 또�
 - 아래 그림과 같이 `form-data`로 request body를 전송할 수 있습니다. 적절한 DTO와 @ModelAttribute 어노테이션을 사용하면 쉽게 DTO 오브젝트로 request body를 전달 받을 수 있습니다.
  <img width="605" alt="스크린샷 2021-09-05 오전 2 17 55" src="https://user-images.githubusercontent.com/48513130/132103089-010135e6-2b63-4caa-8f84-c5c14f5c81fc.png">
 
+- raw - json 을 선택해서 json을 전달할 수도 있습니다! 이 때는 `@RequestBody` 어노테이션으로 DTO로 매핑하면 됩니다.
 
 - https://www.baeldung.com/ 
 

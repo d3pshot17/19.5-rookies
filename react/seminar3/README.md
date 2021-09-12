@@ -7,7 +7,8 @@
 ## 수업 내용
 
 ------------------
-1. Routing
+1. Component Lifecycle
+   - `useEffect`와 render 에 대한 정확한 원리
 1. work with backend
    - API
    - cookies, storage
@@ -20,6 +21,10 @@
    - webserver
    - network
    - aws
+1. 웹뷰
+   - 번외: React Native
+1. HOC와 children
+2. 외부 라이브러리 활용하기
 
 ## 세미나 자료
 
